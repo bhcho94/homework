@@ -4,7 +4,7 @@ import math
 import statsmodels.formula.api as sm
 import matplotlib.pyplot as plt
 import os
-
+ 
 #loading data from csv format
 path = os.getcwd()
 data = pd.read_csv(path + '/GBOND20010731.csv')
@@ -29,23 +29,29 @@ def X2(tau, m):
 
 #next, we test for different values of tau to find the value that minimizes the squared sum of the residuals
 tau = 0
+otau = 0
 curmin = 999
-for i in range(1,100):
+for i in range(100):
+    if i == 0:
+        tau = 0.01
+    else:
+        tau = i
     x1 = []
     x2 = []
     for j in range(len(yields)):
-        x1.append(X1(i, maturities[j]))
-        x2.append(X2(i, maturities[j]))
+        x1.append(X1(tau, maturities[j]))
+        x2.append(X2(tau, maturities[j]))
     df = pd.DataFrame({"A": yields, "B":x1, "C":x2})
     result = sm.ols(formula = 'A ~ B + C', data=df).fit()
     r = sum(result.resid**2)
     if r < curmin:
         curmin = r
-        tau = i
+        otau = tau
+
+tau = otau
 
 #from here we see that tau = 5 gives us the smallest residual sum of squares
 #we test further to find a more accurate and precise tau value around 5
-
 for i in np.linspace(4, 6, 100):
     x1 = []
     x2 = []
