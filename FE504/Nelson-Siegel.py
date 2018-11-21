@@ -1,6 +1,7 @@
 import numpy as np 
 import pandas as pd
 import math
+import statsmodels.formula.api as sm
 import matplotlib.pyplot as plt
 import os
 
@@ -61,7 +62,6 @@ for i in np.linspace(4, 6, 100):
 #from this we see that tau = 4.593 gives us the most optimized residual sum of squares
 #using this value of tau we can now estimate our parameters for B0, B1, and B2
 
-
 x1 = []
 x2 = []
 for j in range(len(yields)):
@@ -70,6 +70,8 @@ for j in range(len(yields)):
 df = pd.DataFrame({"A": yields, "B":x1, "C":x2})
 result = sm.ols(formula = 'A ~ B + C', data=df).fit()
 B0, B1, B2 = result.params[0], result.params[1] - result.params[2], result.params[2]
+
+print(B0, B1, B2, tau)
 
 #NS_forward is the function to calculate the forward rate using the above parameters
 def NS_forward(B0, B1, B2, tau, m):
