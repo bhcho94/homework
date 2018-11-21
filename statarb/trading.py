@@ -85,7 +85,5 @@ df2 = (build_portfolio(trading_signals('TXN','SYK')))
 df3 = (build_portfolio(trading_signals('BDX','SYK')))
 df4 = (build_portfolio(trading_signals('HON','DHR')))
 df5 = (build_portfolio(trading_signals('JPM','PNC')))
-df = (df1 + df2 + df3 + df4 + df5)[['Short','Long']]
-df['Short Return'] = -df.pct_change()['Short']
-df['Long Return'] = df.pct_change()['Long']
+df[1] = (df1['ShortR'])
 print(df)
