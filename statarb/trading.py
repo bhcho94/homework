@@ -20,20 +20,17 @@ data = data.loc[data.index < '2017-09-09']
 prices = prices.loc[prices.index > '2017-09-09']
 
 def trading_signals(first, second, trading_data = trading_data, formation_data = data):
-    daily_decision = []
     signal = 2*np.std(formation_data[first] - formation_data[second])
     result_dict = {}
     trading = False
-    entering = 0
     differences = trading_data[first] - trading_data[second]
-    trading_df = pd.pandas.DataFrame()
     for i in range(len(differences)):
         if trading == False:
-            if abs(differences.iloc[i]) > signal and abs(differences.iloc[i] < 1.5*signal):
+            if abs(differences.iloc[i]) > signal and abs(differences.iloc[i] < 2*signal):
                 trading = True
                 start_date = differences.index.values[i]
         else:
-            if (differences.iloc[i-1] * differences.iloc[i] < 0) or (i == len(differences)-1) or abs(differences.iloc[i] > 1.5*signal):
+            if (differences.iloc[i-1] * differences.iloc[i] < 0) or (i == len(differences)-1) or abs(differences.iloc[i] > 2*signal):
                 trading = False
                 end_date = differences.index.values[i]
                 if differences[i-1] > 0:
@@ -56,7 +53,6 @@ def build_portfolio(trade_list, trading_data = trading_data):
     index_list = trading_data.index.tolist()
     portfolio = pd.DataFrame(index = trading_data.index.values, columns = ['Short','Long','ShortR','LongR','ShortTD','LongTD'])
     for i in range(len(trade_list)):
-        length = trade_list['Length'][i]
         start = trade_list['Start'][i]
         end = trade_list['End'][i]
         short = trade_list['Short'][i]
@@ -80,9 +76,16 @@ def build_portfolio(trade_list, trading_data = trading_data):
             portfolio.iloc[j]['ShortR'] = 0
             portfolio.iloc[j]['LongR']= 0
     portfolio['Total'] = portfolio['ShortR'] + portfolio['LongR']
-    portfolio.drop(columns = ['ShortV','LongV','ShortR','LongR'])
+    portfolio.fillna(0, inplace = True)
     return portfolio
 
-df = ((trading_signals('HON','NEE')))
+
+df1 = (build_portfolio(trading_signals('HON','NEE')))
+df2 = (build_portfolio(trading_signals('TXN','SYK')))
+df3 = (build_portfolio(trading_signals('BDX','SYK')))
+df4 = (build_portfolio(trading_signals('HON','DHR')))
+df5 = (build_portfolio(trading_signals('JPM','PNC')))
+df = (df1 + df2 + df3 + df4 + df5)[['Short','Long']]
+df['Short Return'] = -df.pct_change()['Short']
+df['Long Return'] = df.pct_change()['Long']
 print(df)
-print(build_portfolio(df))
