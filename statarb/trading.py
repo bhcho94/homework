@@ -45,13 +45,12 @@ def trading_signals(first, second, trading_data = trading_data, formation_data =
     df.index = list(range(len(df)))
     df['Total'] = df['SReturn'] + df['LReturn']
     df['Length'] = (df['End'] - df['Start']).dt.days
-
     return df
 
 
 def build_portfolio(trade_list, trading_data = trading_data):
     index_list = trading_data.index.tolist()
-    portfolio = pd.DataFrame(index = trading_data.index.values, columns = ['Short','Long','ShortR','LongR','ShortTD','LongTD'])
+    portfolio = pd.DataFrame(index = trading_data.index.values, columns = ['Short','Long','ShortR','LongR','Trading'])
     for i in range(len(trade_list)):
         start = trade_list['Start'][i]
         end = trade_list['End'][i]
@@ -66,6 +65,7 @@ def build_portfolio(trade_list, trading_data = trading_data):
             portfolio['Long'][dt] = trading_data[lon][dt]/trading_data[lon][index_list[di]]
             portfolio['Short'][dt] = trading_data[short][dt]/trading_data[short][index_list[di]]
             portfolio['Long'][dt] = trading_data[lon][dt]/trading_data[lon][index_list[di]]
+            portfolio['Trading'][dt] = 1
 
     portfolio.fillna(value = 0, axis = 0)
     for j in range(1, len(portfolio)):
@@ -79,11 +79,25 @@ def build_portfolio(trade_list, trading_data = trading_data):
     portfolio.fillna(0, inplace = True)
     return portfolio
 
+def analyze_portfolio(pairs):
+    i = 0
+    df = (build_portfolio(trading_signals(pairs[i][0], pairs[i][1])))
+    for i in range(1, len(pairs)):
+        df = df + (build_portfolio(trading_signals(pairs[i][0], pairs[i][1])))
+    df_short = df['ShortR']/df['Trading']
+    df_long = df['LongR']/df['Trading']
+    df_final = pd.concat([df_short, df_long], axis=1)
+    df_final.columns = ['Short Return','Long Return']
+    df_final.index.name = 'Date'
+    df_final['Total'] = df_final['Short Return'] + df_final['Long Return']
+    df_final.fillna(0, inplace = True)
+    arithemtic_daily_mean = np.mean(df_final['Total'])
+    annualized_return = (1+arithemtic_daily_mean)**250 - 1
+    annualized_std = np.std(df_final['Total'])*np.sqrt(250)
+    sharpe_ratio = annualized_return/annualized_std
+    return [annualized_return, annualized_std, sharpe_ratio]
 
-df1 = (build_portfolio(trading_signals('HON','NEE')))
-df2 = (build_portfolio(trading_signals('TXN','SYK')))
-df3 = (build_portfolio(trading_signals('BDX','SYK')))
-df4 = (build_portfolio(trading_signals('HON','DHR')))
-df5 = (build_portfolio(trading_signals('JPM','PNC')))
-df[1] = (df1['ShortR'])
-print(df)
+print(analyze_portfolio([['HON','NEE'], ['TXN','SYK'],['BDX','SYK'], ['HON','DHR'],['JPM','PNC']]))
+
+print(analyze_portfolio([['HON','MMC'], ['HON','AON'],['BBT','STI'], ['DUK','SRE'],['LMT','NOC']]))
+
