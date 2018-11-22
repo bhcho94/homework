@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import statsmodels as sm
 from statsmodels.tsa.stattools import adfuller
-from statsmodels.regression.linear_model import OLS
+
 path = os.getcwd()
 
 prices = pd.read_csv(path + '/close.csv')
@@ -45,12 +45,14 @@ def trading_signals(first, second, trading_data = trading_data, formation_data =
     df.index = list(range(len(df)))
     df['Total'] = df['SReturn'] + df['LReturn']
     df['Length'] = (df['End'] - df['Start']).dt.days
-    return df
+    return (df, len(df))
 
 
 def build_portfolio(trade_list, trading_data = trading_data):
     index_list = trading_data.index.tolist()
     portfolio = pd.DataFrame(index = trading_data.index.values, columns = ['Short','Long','ShortR','LongR','Trading'])
+    l = trade_list[1]
+    trade_list = trade_list[0]
     for i in range(len(trade_list)):
         start = trade_list['Start'][i]
         end = trade_list['End'][i]
@@ -77,13 +79,15 @@ def build_portfolio(trade_list, trading_data = trading_data):
             portfolio.iloc[j]['LongR']= 0
     portfolio['Total'] = portfolio['ShortR'] + portfolio['LongR']
     portfolio.fillna(0, inplace = True)
-    return portfolio
+    return (portfolio, l)
 
 def analyze_portfolio(pairs):
     i = 0
-    df = (build_portfolio(trading_signals(pairs[i][0], pairs[i][1])))
+    df = (build_portfolio(trading_signals(pairs[i][0], pairs[i][1]))[0])
+    trade_count = build_portfolio(trading_signals(pairs[i][0], pairs[i][1]))[1]
     for i in range(1, len(pairs)):
-        df = df + (build_portfolio(trading_signals(pairs[i][0], pairs[i][1])))
+        df = df + (build_portfolio(trading_signals(pairs[i][0], pairs[i][1])))[0]
+        trade_count += build_portfolio(trading_signals(pairs[i][0], pairs[i][1]))[1]
     df_short = df['ShortR']/df['Trading']
     df_long = df['LongR']/df['Trading']
     df_final = pd.concat([df_short, df_long], axis=1)
@@ -95,7 +99,7 @@ def analyze_portfolio(pairs):
     annualized_return = (1+arithemtic_daily_mean)**250 - 1
     annualized_std = np.std(df_final['Total'])*np.sqrt(250)
     sharpe_ratio = annualized_return/annualized_std
-    return [annualized_return, annualized_std, sharpe_ratio]
+    return [annualized_return, annualized_std, sharpe_ratio, trade_count]
 
 print(analyze_portfolio([['HON','NEE'], ['TXN','SYK'],['BDX','SYK'], ['HON','DHR'],['JPM','PNC']]))
 
