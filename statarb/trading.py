@@ -103,5 +103,4 @@ def analyze_portfolio(pairs):
 
 print(analyze_portfolio([['HON','NEE'], ['TXN','SYK'],['BDX','SYK'], ['HON','DHR'],['JPM','PNC']]))
 
-print(analyze_portfolio([['HON','MMC'], ['HON','AON'],['BBT','STI'], ['DUK','SRE'],['LMT','NOC']]))
 

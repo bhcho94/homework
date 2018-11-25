@@ -31,8 +31,8 @@ def charts(first, second, data = data, trading_data = trading_data):
     plt.axhline(0, color = 'b', linewidth = 0.5)
     plt.axhline(2*sd, color = 'g', linewidth = 0.5)
     plt.axhline(-2*sd, color = 'g',linewidth = 0.5)
-    plt.axhline(3*sd, color = 'r',linewidth = 0.5)
-    plt.axhline(-3*sd, color = 'r',linewidth = 0.5)
+    plt.axhline(4*sd, color = 'r',linewidth = 0.5)
+    plt.axhline(-4*sd, color = 'r',linewidth = 0.5)
     plt.title('%s Historical Differences' % title)
     plt.xlabel('Date')
     plt.ylabel('Difference')
@@ -52,8 +52,8 @@ def charts(first, second, data = data, trading_data = trading_data):
     plt.axhline(0, color = 'b', linewidth = 0.5)
     plt.axhline(2*sd, color = 'g', linewidth = 0.5)
     plt.axhline(-2*sd, color = 'g',linewidth = 0.5)
-    plt.axhline(3*sd, color = 'r',linewidth = 0.5)
-    plt.axhline(-3*sd, color = 'r',linewidth = 0.5)
+    plt.axhline(4*sd, color = 'r',linewidth = 0.5)
+    plt.axhline(-4*sd, color = 'r',linewidth = 0.5)
     plt.title('%s Historical Differences' % title)
     plt.xlabel('Date')
     plt.ylabel('Difference')
@@ -63,4 +63,4 @@ def charts(first, second, data = data, trading_data = trading_data):
     #plt.axhline(-2*sd, color = 'r')
 
 
-charts('HON','NEE')
+charts('JPM','PNC')
