@@ -14,7 +14,6 @@ data = data/data.iloc[0]
 result_dict = {}
 trading_data = data.loc[data.index > '2017-09-08']
 data = data.loc[data.index < '2017-09-09']
-print('test')
 
 for i in range(len(tickers)):
         for j in range(i, len(tickers)):
